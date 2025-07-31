@@ -11,6 +11,16 @@ const products = [
 
 // DOM elements
 const productList = document.getElementById("product-list");
+const cartList = document.getElementById("cart-list");
+const clearCartBtn = document.getElementById("clear-cart-btn");
+
+// Get cart from sessionStorage or initialize as empty array
+let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+
+// Save cart to sessionStorage
+function saveCartToSession() {
+  sessionStorage.setItem("cart", JSON.stringify(cart));
+}
 
 // Render product list
 function renderProducts() {
@@ -21,18 +31,54 @@ function renderProducts() {
   });
 }
 
+
 // Render cart list
-function renderCart() {}
+function renderCart() {
+	cartList.innerHTML = ""; // Clear existing items
+  cart.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} - $${item.price}`;
+	   <button onclick="removeFromCart(${item.id})">Remove</button>`;
+    cartList.appendChild(li);
+  });
+}
+function updateScore() {
+  const score = cart.reduce((acc, item) => acc + item.price, 0);
+  localStorage.setItem("score", score);
+}
 
 // Add item to cart
-function addToCart(productId) {}
+function addToCart(productId) {
+	const product = products.find((p) => p.id === parseInt(productId));
+  if (product) {
+    cart.push(product);                    // Add to cart
+    saveCartToSession();                  // Update sessionStorage
+    renderCart();                         // Re-render cart
+  }
+}
 
 // Remove item from cart
-function removeFromCart(productId) {}
+function removeFromCart(productId) {
+	const index = cart.findIndex(item => item.id === parseInt(productId));
+  if (index !== -1) {
+    cart.splice(index, 1);                // Remove the item
+    saveCartToSession();                 // Update session storage
+    renderCart();                        // Re-render cart list
+  }
+}
 
 // Clear cart
-function clearCart() {}
-
+function clearCart() {
+	 cart = [];
+  saveCartToSession();                   // Clear sessionStorage
+  renderCart();
+}
+function updateScore() {
+  const score = cart.reduce((acc, item) => acc + item.price, 0);
+  localStorage.setItem("score", score);
+  document.getElementById("score").textContent = score;
+}
 // Initial render
 renderProducts();
 renderCart();
+updateScore();
